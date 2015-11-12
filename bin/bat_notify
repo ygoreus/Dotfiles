@@ -1,0 +1,31 @@
+#!/usr/bin/env zsh
+##----------------------------------------------------------------------------------------
+##--   file > $XDG_CONFIG_HOME/dotfiles/bin/bat_notfiy                                  --
+##-- author > ygoreus aka Joe Biden                                                     --
+##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##----------------------------------------------------------------------------------------
+##-- monitors battery percentage, sends notification if critical
+
+##-- variables ---------------------------------------------------------------------------
+interval=120
+second_level=40
+crit_level=15
+icon="notification-battery-low"
+
+##-- send notification -------------------------------------------------------------------
+while true
+do
+    if [[ "$(acpi -a | grep -o off)" == "off" && "$(acpi -b | wc -l )" -gt "1" ]]; then
+        battery_level=`acpi -b | awk 'FNR==1' | sed 's/.*[dg], //g;s/\%,.*//g'`
+        [[ $battery_level -le $second_level ]] && \
+            notify-send -u critical -i "$icon" -t 15000 \
+            "First Battery low, $battery_level%" "Switch to Second battery."
+    else
+        battery_level=`acpi -b | awk 'FNR==1' | sed 's/.*[dg], //g;s/\%,.*//g'`
+        [[ $battery_level -le $crit_level ]] && \
+            notify-send -u critical -i "$icon" -t 15000 \
+            "Battery level at $battery_level%," " get to the CHARGER!"
+    fi
+sleep $interval
+done
+

@@ -1,0 +1,47 @@
+#!/usr/bin/env zsh
+##----------------------------------------------------------------------------------------
+##--   file > $XDG_CONFIG_HOME/dotfiles/bin/brightness_adjust                           --
+##-- author > ygoreus aka Joe Biden                                                     --
+##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##----------------------------------------------------------------------------------------
+##-- requires: xorg-xbacklight dzen2
+
+##-- modify backlighting
+case $1 in
+    "up")
+        brightness=$(/usr/bin/xbacklight -inc 5%)
+    ;;
+    "down")
+        brightness=$(/usr/bin/xbacklight -dec 5%)
+    ;;
+    "standard")
+        brightness=$(/usr/bin/xbacklight -set 25%)
+    ;;
+    "off")
+        brightness=$(/usr/bin/xbacklight -set 0%)
+    ;;
+    *)
+        echo ""
+        exit 1
+    ;;
+esac
+$brightness
+pkill -SIGRTMIN+11 i3blocks
+
+
+##-- make the popup
+backlight=`/usr/bin/xbacklight -get | awk '{print int($1+0.5)}'`
+bar_fg="#dddd00"
+bar_bg="#232323"
+
+pipe="/tmp/brightness"
+dzen_args=( -tw 200 -h 26 -x 1156 -y 20 -bg '#101010' )
+gdbar_args=( -w 180 -h 12 -fg $bar_fg -bg $bar_bg )
+
+if [[ ! -e "$pipe" ]]; then
+    mkfifo "$pipe"
+    (dzen2 "${dzen_args[@]}" < "$pipe"; rm -f "$pipe" ) &
+fi
+
+(echo ${backlight/.*/} 100 | gdbar "${gdbar_args[@]}"; sleep 1) >> "$pipe"
+

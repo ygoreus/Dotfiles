@@ -1,0 +1,23 @@
+#!/usr/bin/zsh
+##----------------------------------------------------------------------------------------
+##--   file > $XDG_CONFIG_HOME/dotfiles/bin/dzen/calendar_quarter                       --
+##-- author > ygoreus aka Joe Biden                                                     --
+##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##----------------------------------------------------------------------------------------
+##--
+
+##-- variables ---------------------------------------------------------------------------
+TODAY=$(expr `date +'%d'` + 0)
+DATE=$(date +"%A, %B %d")
+LINES=$(cal -3m | wc -l)
+
+##-- make the popup ----------------------------------------------------------------------
+(
+echo "$DATE"
+cal -3m | sed -re "s/^(.*[A-Za-z][A-Za-z]*.*)$/^fg(#DE8834)^bg(#222222)\1/;s/(^|[ ])($TODAY)($|[ ])/\1^bg(#DE8834)^fg(#222222)\2^fg(#aaaaaa)^bg(#000000)\3/4"
+) | dzen2 -p 5 -x "900" -y "17" -w "460" -l "8" -sa 'c' -ta 'c' -title-name 'popup-calendar' -e \
+'onstart=uncollapse\
+;button1=exit\
+;button3=exit\
+'
+

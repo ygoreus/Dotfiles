@@ -1,0 +1,33 @@
+#!/usr/bin/zsh
+##----------------------------------------------------------------------------------------
+##--   file > $XDG_CONFIG_HOME/dotfiles/bin/dzen/volume_popup                           --
+##-- author > ygoreus aka Joe Biden                                                     --
+##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##----------------------------------------------------------------------------------------
+##--
+
+##-- variables ---------------------------------------------------------------------------
+level=$(amixer get Master | sed -n 6p | awk '{print $5}' | sed 's/[^0-9]//g')
+muted=$(amixer get Master | awk 'FNR == 6 {print $6}' | sed 's|[^a-z]||g')
+if [[ $muted == "off" ]]; then
+  bar_bg='#232323'
+  bar_fg='#dd0000'
+else
+  bar_bg='#232323'
+  bar_fg='#19cf08'
+fi
+
+##-- make the popup ----------------------------------------------------------------------
+pipe='/tmp/volpipe'
+#dzen_args=( -tw 200 -h 26 -x 583 -y 371 -bg '#101010' )
+dzen_args=( -tw 200 -h 26 -x 1156 -y 20 -bg '#101010' )
+#gdbar_args=( -w 180 -h 12 -fg $bar_fg -bg $bar_bg -s 'o' -ss 1 -sw 2)
+gdbar_args=( -w 180 -h 12 -fg $bar_fg -bg $bar_bg)
+
+if [[ ! -e "$pipe" ]]; then
+  mkfifo "$pipe"
+  (dzen2 "${dzen_args[@]}" < "$pipe"; rm -f "$pipe" ) &
+fi
+
+(echo ${level/.*/} | gdbar "${gdbar_args[@]}" -max 100; sleep 1) >> "$pipe"
+

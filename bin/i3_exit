@@ -1,0 +1,44 @@
+#!/usr/bin/env zsh
+##----------------------------------------------------------------------------------------
+##--   file > $XDG_CONFIG_HOME/dotfiles/bin/i3_Pmgr                                     --
+##-- author > ygoreus aka Joe Biden                                                     --
+##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##----------------------------------------------------------------------------------------
+##-- requires: systemd i3lock i3-wm
+##-- BOF
+
+##-- set variables -----------------------------------------------------------------------
+
+##-- functions
+lock () {
+  /usr/bin/i3lock -c 000000
+}
+
+##-- command for pmgr --------------------------------------------------------------------
+case $1 in
+    "p"|"poweroff")
+        /usr/bin/systemctl poweroff
+    ;;
+    "r"|"restart")
+        /usr/bin/systemctl restart
+    ;;
+    "s"|"suspend")
+        lock && /usr/bin/systemctl suspend
+    ;;
+    "h"|"hibernate")
+        lock && /usr/bin/systemctl hibernate
+    ;;
+    "e"|"logout")
+        /usr/bin/i3-msg exit
+    ;;
+    "l"|"lock")
+        lock
+    ;;
+    *)
+        echo "derp.."
+        exit 2
+    ;;
+esac
+
+exit 0
+##-- EOF

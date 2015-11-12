@@ -1,0 +1,51 @@
+#!/usr/bin/zsh
+##----------------------------------------------------------------------------------------
+##--   file > $XDG_CONFIG_HOME/dotfiles/bin/dzen/power_mgr_popup                        --
+##-- author > ygoreus aka Joe Biden                                                     --
+##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##----------------------------------------------------------------------------------------
+##--
+
+##-- variables ---------------------------------------------------------------------------
+if [[ -d /sys/devices/platform/smapi/BAT0 ]]; then
+    bat0_brand=$(cat /sys/devices/platform/smapi/BAT0/manufacturer)
+    bat0_model=$(cat /sys/devices/platform/smapi/BAT0/model)
+    bat0_temp=$(($(cat /sys/devices/platform/smapi/BAT0/temperature) / 1000 ))
+    bat0_perc=$(cat /sys/devices/platform/smapi/BAT0/remaining_percent)
+    bat0_ccap=$(($(cat /sys/devices/platform/smapi/BAT0/last_full_capacity) * 100 / $(cat /sys/devices/platform/smapi/BAT0/design_capacity)))
+    bat0_stts=$(cat /sys/devices/platform/smapi/BAT0/state | sed 's|^idle|Idle|g;s|^charg|Charg|g;s|^discharg|Discharg|g')
+fi
+
+if [[ -d /sys/devices/platform/smapi/BAT1 ]]; then
+    bat1_brand=$(cat /sys/devices/platform/smapi/BAT1/manufacturer)
+    bat1_model=$(cat /sys/devices/platform/smapi/BAT1/model)
+    bat1_temp=$(( $(cat /sys/devices/platform/smapi/BAT1/temperature) / 1000 ))
+    bat1_perc=$(cat /sys/devices/platform/smapi/BAT1/remaining_percent)
+    bat1_ccap=$(( $(cat /sys/devices/platform/smapi/BAT1/last_full_capacity) * 100 / $(cat /sys/devices/platform/smapi/BAT1/design_capacity) ))
+    bat1_stts=$(cat /sys/devices/platform/smapi/BAT1/state | sed 's|^idle|Idle|g;s|^charg|Charg|g;s|^discharg|Discharg|g')
+fi
+
+## make the popup ------------------------------------------------------------------------
+(
+echo "^fg(#19cf08)^bg(#4a4a4a)      Battery Status       "
+echo "^fg(#3399bb) ${bat0_brand} - ${bat0_model}"
+echo "^fg(#3399bb) Status: ^fg(#00aa00)${bat0_stts}"
+echo "^fg(#123456) Battery Temp:      ^fg(#00aa00)${bat0_temp}^fg(#3399bb)°C"
+echo "^fg(#456789) Relative Charge:   ^fg(#00aa00)${bat0_perc}^fg(#3399bb)%"
+echo "^fg(#345678) Charge Capacity:   ^fg(#00aa00)${bat0_ccap}^fg(#3399bb)%"
+echo "^fg(#012345) ======================= "
+if [[ -d /sys/devices/platform/smapi/BAT1 ]]; then
+    echo "^fg(#3399bb) ${bat1_brand} - ${bat1_model}"
+    echo "^fg(#3399bb) Status: ^fg(#00aa00)${bat1_stts}"
+    echo "^fg(#123456) Battery Temp:      ^fg(#00aa00)${bat1_temp}^fg(#3399bb)°C "
+    echo "^fg(#456789) Relative Charge:   ^fg(#00aa00)${bat1_perc}^fg(#3399bb)%  "
+    echo "^fg(#345678) Charge Capacity:   ^fg(#00aa00)${bat1_ccap}^fg(#3399bb)%  "
+fi
+) | dzen2 -p 5 -x 1090 -y 17 -w 175 -l 11 -ta c -e \
+"onstart=uncollapse,grabkeys,grabmouse\
+;key_Escape=ungrabkeys,ungrabmouse,exit\
+;button1=ungrabkeys,ungrabmouse,exit\
+;button2=ungrabkeys,ungrabmouse,exit\
+;button3=ungrabkeys,ungrabmouse,exit\
+"
+

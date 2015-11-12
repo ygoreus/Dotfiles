@@ -1,0 +1,18 @@
+#!/usr/bin/env zsh
+##----------------------------------------------------------------------------------------
+##--   file > $XDG_CONFIG_HOME/dotfiles/bin/toggle_touchpad                             --
+##-- author > ygoreus aka Joe Biden                                                     --
+##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##----------------------------------------------------------------------------------------
+##-- requires: xf86-input-synaptics
+
+##-- variables ---------------------------------------------------------------------------
+status=$(synclient | head -n 26 | tail -n 1 | awk '{print $3}' | cut -c1)
+
+##-- toggle trackpad ---------------------------------------------------------------------
+if [[ $status -eq 1 ]]; then
+    synclient TouchPadOff=0
+else
+    synclient TouchPadOff=1
+fi
+
