@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
-##--   file > $XDG_CONFIG_HOME/dotfiles/bin/toggle_touchpad                             --
+##--   file > ${XDG_CONFIG_HOME}/dotfiles/bin/toggle_touchpad                           --
 ##-- author > ygoreus aka Joe Biden                                                     --
 ##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
 ##----------------------------------------------------------------------------------------
