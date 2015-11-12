@@ -6,13 +6,15 @@
 ##----------------------------------------------------------------------------------------
 ##-- requires: xorg-xbacklight dzen2
 
-##-- modify backlighting
+##-- modify screen backlighting ----------------------------------------------------------
+##----------------------------------------------------------------------------------------
+level=${2:-5}
 case $1 in
     "up")
-        brightness=$(/usr/bin/xbacklight -inc 5%)
+        brightness=$(/usr/bin/xbacklight -inc ${level})
     ;;
     "down")
-        brightness=$(/usr/bin/xbacklight -dec 5%)
+        brightness=$(/usr/bin/xbacklight -dec ${level})
     ;;
     "standard")
         brightness=$(/usr/bin/xbacklight -set 25%)
@@ -21,7 +23,8 @@ case $1 in
         brightness=$(/usr/bin/xbacklight -set 0%)
     ;;
     *)
-        echo ""
+        echo -e "\nUsage: backlight_adjust <augment> <increment>\n augment   -- any of (up|down|standard|off) \n increment -- positive percentage change"
+        echo -e "\nAugment options: \n up        -- increase screen backlighting by <increment>\n down      -- decrease screen backlighting by <increment>\n standard  -- set screen backlighting to 25%\n off       -- set screen backlighting to 0%\n"
         exit 1
     ;;
 esac

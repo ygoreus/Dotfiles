@@ -31,9 +31,9 @@ arr=()
 shift
 cd -- "$dir"
 for i in *; do
-  [[ -f $i ]] || continue
-  arr+=("$i")
-  [[ $i == $file ]] && c=$((${#arr[@]} - 1))
+    [[ -f $i ]] || continue
+    arr+=("$i")
+    [[ $i == $file ]] && c=$((${#arr[@]} - 1))
 done
 
 ##-- launch the picker

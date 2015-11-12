@@ -7,7 +7,7 @@
 ##-- monitors battery percentage, sends notification if critical
 
 ##-- variables ---------------------------------------------------------------------------
-interval=120
+interval=300
 second_level=40
 crit_level=15
 icon="notification-battery-low"
