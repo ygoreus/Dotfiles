@@ -1,14 +1,18 @@
 #!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
-##--   file > ${XDG_CONFIG_HOME}/dotfiles/bin/brightness_adjust                         --
-##-- author > ygoreus aka Joe Biden                                                     --
+##-- file   > ${XDG_CONFIG_HOME}/dotfiles/bin/brightness_adjust                         --
 ##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##-- requires: xorg-xbacklight dzen2 i3blocks                                           --
 ##----------------------------------------------------------------------------------------
-##-- requires: xorg-xbacklight dzen2
+##-- BOF
 
 ##-- modify screen backlighting ----------------------------------------------------------
 ##----------------------------------------------------------------------------------------
+##-- variables
 level=${2:-5}
+if [[ $level -ge 100 ]]; then
+    level="5"
+fi
 case $1 in
     "up")
         brightness=$(/usr/bin/xbacklight -inc ${level})
@@ -23,28 +27,32 @@ case $1 in
         brightness=$(/usr/bin/xbacklight -set 0%)
     ;;
     *)
-        echo -e "\nUsage: backlight_adjust <augment> <increment>\n augment   -- any of (up|down|standard|off) \n increment -- positive percentage change"
-        echo -e "\nAugment options: \n up        -- increase screen backlighting by <increment>\n down      -- decrease screen backlighting by <increment>\n standard  -- set screen backlighting to 25%\n off       -- set screen backlighting to 0%\n"
+        echo -e "\nUsage: backlight_adjust <augment> <increment>\n  augment   -- any of (up|down|standard|off) \n  increment -- positive percentage change\n\nAugment options: \n  up        -- increase screen backlighting by <increment>\n  down      -- decrease screen backlighting by <increment>\n  standard  -- set screen backlighting to 25%\n  off       -- set screen backlighting to 0%\n"
         exit 1
     ;;
 esac
+
+##-- change screen backlighting
 $brightness
 pkill -SIGRTMIN+11 i3blocks
 
-
-##-- make the popup
+##-- make the popup ----------------------------------------------------------------------
+##----------------------------------------------------------------------------------------
+##-- new variables
 backlight=`/usr/bin/xbacklight -get | awk '{print int($1+0.5)}'`
+pipe="/tmp/brightness"
+
+##-- colours
 bar_fg="#dddd00"
 bar_bg="#232323"
 
-pipe="/tmp/brightness"
+##-- draw the popup
 dzen_args=( -tw 200 -h 26 -x 1156 -y 20 -bg '#101010' )
 gdbar_args=( -w 180 -h 12 -fg $bar_fg -bg $bar_bg )
-
 if [[ ! -e "$pipe" ]]; then
     mkfifo "$pipe"
     (dzen2 "${dzen_args[@]}" < "$pipe"; rm -f "$pipe" ) &
 fi
-
 (echo ${backlight/.*/} 100 | gdbar "${gdbar_args[@]}"; sleep 1) >> "$pipe"
 
+##-- EOF

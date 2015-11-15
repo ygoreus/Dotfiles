@@ -1,10 +1,10 @@
-#!/usr/bin/zsh
+#!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
-##--   file > ${XDG_CONFIG_HOME}/dotfiles/bin/dzen/volume_popup                         --
-##-- author > ygoreus aka Joe Biden                                                     --
+##-- file   > ${XDG_CONFIG_HOME}/dotfiles/bin/dzen/volume_popup                         --
 ##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##-- requires: alsamixer dzen2                                                          --
 ##----------------------------------------------------------------------------------------
-##--
+##-- BOF
 
 ##-- variables ---------------------------------------------------------------------------
 level=$(amixer get Master | sed -n 6p | awk '{print $5}' | sed 's/[^0-9]//g')
@@ -31,3 +31,4 @@ fi
 
 (echo ${level/.*/} | gdbar "${gdbar_args[@]}" -max 100; sleep 1) >> "$pipe"
 
+##-- EOF

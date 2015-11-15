@@ -1,12 +1,13 @@
 #!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
-##--   file > ${XDG_CONFIG_HOME}/dotfiles/bin/signal_block                              --
-##-- author > ygoreus aka Joe Biden                                                     --
+##-- file   > ${XDG_CONFIG_HOME}/dotfiles/bin/signal_block                              --
 ##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##-- requires: core-utils i3blocks                                                      --
 ##----------------------------------------------------------------------------------------
-##--
+##-- BOF
 
 ##-- send signals to update i3 blocks ----------------------------------------------------
+##----------------------------------------------------------------------------------------
 ##-- volume block
 pkill -SIGRTMIN+10 i3blocks
 ##-- brightness block
@@ -15,5 +16,5 @@ pkill -SIGRTMIN+11 i3blocks
 pkill -SIGRTMIN+22 i3blocks
 ##--
 pkill -SIGRTMIN+23 i3blocks
-##--
 
+##--EOF

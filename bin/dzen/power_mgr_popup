@@ -1,12 +1,14 @@
-#!/usr/bin/zsh
+#!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
-##--   file > ${XDG_CONFIG_HOME}/dotfiles/bin/dzen/power_mgr_popup                        --
-##-- author > ygoreus aka Joe Biden                                                     --
+##-- file   > ${XDG_CONFIG_HOME}/dotfiles/bin/dzen/power_mgr_popup                      --
 ##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##-- requires: dzen2 {thinkpad}                                                         --
 ##----------------------------------------------------------------------------------------
-##--
+##-- BOF
 
-##-- variables ---------------------------------------------------------------------------
+##-- popup for battery info --------------------------------------------------------------
+##----------------------------------------------------------------------------------------
+##-- variables
 if [[ -d /sys/devices/platform/smapi/BAT0 ]]; then
     bat0_brand=$(cat /sys/devices/platform/smapi/BAT0/manufacturer)
     bat0_model=$(cat /sys/devices/platform/smapi/BAT0/model)
@@ -25,7 +27,7 @@ if [[ -d /sys/devices/platform/smapi/BAT1 ]]; then
     bat1_stts=$(cat /sys/devices/platform/smapi/BAT1/state | sed 's|^idle|Idle|g;s|^charg|Charg|g;s|^discharg|Discharg|g')
 fi
 
-## make the popup ------------------------------------------------------------------------
+##-- make the popup
 (
 echo "^fg(#19cf08)^bg(#4a4a4a)      Battery Status       "
 echo "^fg(#3399bb) ${bat0_brand} - ${bat0_model}"
@@ -49,3 +51,4 @@ fi
 ;button3=ungrabkeys,ungrabmouse,exit\
 "
 
+##-- EOF

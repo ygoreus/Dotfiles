@@ -1,14 +1,18 @@
 #!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
 ##--   file > ${XDG_CONFIG_HOME}/dotfiles/bin/volume_adjust                             --
-##-- author > ygoreus aka Joe Biden                                                     --
 ##-- vim: set rnu nu ai et ts=4 sw=4 :                                                  --
+##-- requires: alsa-utils dzen2 i3blocks                                                --
 ##----------------------------------------------------------------------------------------
-##-- requires: alsa-utils dzen2
+##-- BOF
 
 ##-- modify the system volume ------------------------------------------------------------
 ##----------------------------------------------------------------------------------------
+##-- variables
 level=${2:-5}
+if [[ $level -ge 100 ]]; then
+    level="5"
+fi
 case $1 in
     "up")
         volume=$(amixer -D pulse set Master unmute ${level}%+)
@@ -26,31 +30,33 @@ case $1 in
         volume=$(amixer -D pulse set Master mute)
     ;;
     *)
-        echo -e "\nUsage: volume_adjust <augment> <increment>\n augment   -- any of (up|down|spkrmute|micmute|mute)\n increment -- positive percentage change (default is 5)"
-        echo -e "\nAugment options:"
-        echo -e " up        -- unmutes and raises system volume by <increment> \n down      -- unmutes and lowers system volume by <increment> \n spkrmute  -- toggles mute / unmute the system volume \n micmute   -- toogles mute / unmute the microphone (experimental) \n mute      -- mutes the system volume\n"
+        echo -e "\nUsage: volume_adjust <augment> <increment>\n  augment   -- any of (up|down|spkrmute|micmute|mute)\n  increment -- positive percentage change (default is 5)\n\nAugment options:\n  up        -- unmutes and raises system volume by <increment>\n  down      -- unmutes and lowers system volume by <increment>\n  spkrmute  -- toggles mute / unmute the system volume\n  micmute   -- toogles mute / unmute the microphone (experimental) \n  mute      -- mutes the system volume\n"
         exit 1
     ;;
 esac
 
+##-- change system volume
 $volume
 pkill -SIGRTMIN+10 i3blocks
 
 ##-- create and display a popup volume bar -----------------------------------------------
 ##----------------------------------------------------------------------------------------
+##-- new variables
 v_lvl=`amixer get Master | sed -n 6p | awk '{print $5}' | sed 's/[^0-9]//g'`
 muted=`amixer get Master | awk 'FNR == 6 {print $6}' | sed 's|[^a-z]||g'`
+pipe='/tmp/volpipe'
 
+##-- colours
 bar_bg="#232323"
 [[ $muted == 'off' ]] && bar_fg="#dd0000" || bar_fg="#19cf08"
 
-pipe='/tmp/volpipe'
+##-- draw the popup
 dzen_args=( -tw 200 -h 26 -x 1156 -y 20 -bg '#101010' )
 gdbar_args=( -w 180 -h 12 -fg $bar_fg -bg $bar_bg)
 if [[ ! -e "$pipe" ]]; then
     mkfifo "$pipe"
     (dzen2 "${dzen_args[@]}" < "$pipe"; rm -f "$pipe" ) &
 fi
-
 (echo ${v_lvl/.*/} | gdbar "${gdbar_args[@]}" -max 100; sleep 1) >> "$pipe"
 
+##-- EOF

@@ -1,12 +1,14 @@
-#!/usr/bin/zsh
+#!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
-##--   file > ${XDG_CONFIG_HOME}/dotfiles/bin/dzen/mpd_popup                            --
-##-- author > ygoreus aka Joe Biden                                                     --
+##-- file   > ${XDG_CONFIG_HOME}/dotfiles/bin/dzen/mpd_popup                            --
 ##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##-- requires: mpd mpc dzen2                                                            --
 ##----------------------------------------------------------------------------------------
-##--
+##-- BOF
 
-##-- variables ---------------------------------------------------------------------------
+##-- popup showing mpd status and info ---------------------------------------------------
+##----------------------------------------------------------------------------------------
+##-- variables
 WIDTH=()
 MPD_ARTIST=$(mpc current -f %artist%)
 MPD_ALBUM=$(mpc current -f %album%)
@@ -15,7 +17,7 @@ MPD_STATE=$(mpc | sed -n 2p | awk '{print $1}' | sed 's/[^a-z]//g;s/^p/P/;s/^s/S
 MPD_TIME_E=$(mpc | sed -n 2p | awk '{print $3}' | sed 's|/.*||')
 MPD_TIME_T=$(mpc current -f %time% | sed -n 1p)
 
-##-- make the popup ----------------------------------------------------------------------
+##-- make the popup
 (
 echo "MPD Info"
 echo "$MPD_TITLE"
@@ -23,3 +25,4 @@ echo "$MPD_TIME_E / $MPD_TIME_T ^fg(#ffff00)^bg(#242424)[$MPD_STATE]"
 echo "$MPD_ARTIST - $MPD_ALBUM"
 ) | dzen2 -p  -x 0 -y 17 -w 800 -l 8 -sa 'c' -ta 'c' -title-name 'mpd-info' -e 'onstart=uncollapse;button1=exit;button3=exit'
 
+##-- EOF

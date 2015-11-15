@@ -1,20 +1,22 @@
 #!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
-##--   file > ${XDG_CONFIG_HOME}/dotfiles/bin/i3_exit                                   --
-##-- author > ygoreus aka Joe Biden                                                     --
+##-- file   > ${XDG_CONFIG_HOME}/dotfiles/bin/i3_exit                                   --
 ##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##-- requires: systemd i3lock i3-wm                                                     --
 ##----------------------------------------------------------------------------------------
-##-- requires: systemd i3lock i3-wm
 ##-- BOF
 
-##-- set variables -----------------------------------------------------------------------
+##-- power manager options ---------------------------------------------------------------
+##----------------------------------------------------------------------------------------
+##-- variables
+image_number=${2:-1}
 
 ##-- functions
 lock () {
-  /usr/bin/i3lock -c 000000
+  /usr/bin/i3lock -i ${HOME}/media/wallpaper_archive/locker/i3lock${image_number}.png
 }
 
-##-- command for pmgr --------------------------------------------------------------------
+##-- command for pmgr
 case $1 in
     "p"|"poweroff")
         /usr/bin/systemctl poweroff
@@ -39,6 +41,6 @@ case $1 in
         exit 2
     ;;
 esac
-
 exit 0
+
 ##-- EOF

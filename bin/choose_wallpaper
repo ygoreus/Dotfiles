@@ -1,32 +1,32 @@
 #!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
 ##--   file > ${XDG_CONFIG_HOME}/dotfiles/bin/change_wallpaper                          --
-##-- author > ygoreus aka Joe Biden                                                     --
 ##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##-- requires: xorg-xrandr xdotool feh coreutils                                        --
 ##----------------------------------------------------------------------------------------
-##-- requires: xorg-xrandr xdotool feh coreutils
+##-- BOF
 
-##-- current screen
+##-- Select wallpaper directory ----------------------------------------------------------
+##----------------------------------------------------------------------------------------
+##-- variables
 screen_w=$(xrandr --query | grep 'Screen 0:' | awk '{print $8}' | sed 's|,||g')
 screen_h=$(xrandr --query | grep 'Screen 0:' | awk '{print $10}' | sed 's|,||g')
 screen_r=$(echo $((1.0*screen_w/screen_h)) | awk '{printf("%.2f\n", $1)}')
-
-##-- current screen resolutions
 s16_09=$(echo $((16/9.0)) | awk '{printf("%.2f\n", $1)}')
 s16_10=$(echo $((16/10.)) | awk '{printf("%.2f\n", $1)}')
 
-##-- wallpapers directory
+##-- pick the directory
 dir="$HOME/media/wallpapers/solid_colours"
 if [[ $screen_r == $s16_09 ]]; then
-  dir="$HOME/media/wallpapers/16_9"
+    dir="$HOME/media/wallpapers/16_9"
 elif [[ $screen_r == $s16_10 ]]; then
-  dir="$HOME/media/wallpapers/16_10"
+    dir="$HOME/media/wallpapers/16_10"
 fi
 
-##-- find name of file in wallpaper dir
+##-- Start the wallpaper selecter --------------------------------------------------------
+##----------------------------------------------------------------------------------------
+##-- new variables
 file=$(ls $dir | awk 'FNR==1 {print $1}')
-
-##-- configure options for wallpaper changer
 arr=()
 shift
 cd -- "$dir"
@@ -36,6 +36,7 @@ for i in *; do
     [[ $i == $file ]] && c=$((${#arr[@]} - 1))
 done
 
-##-- launch the picker
-exec feh --title "Change Wallpaper" -B black -g 1366x768 --action1 ";""feh --bg-scale %F && xdotool key Escape" "$@" -- "${arr[@]:c}" "${arr[@]:0:c}"
+##-- launch wallpaper selecter
+exec feh --title "Change Wallpaper" -B black -g ${screen_w}x${screen_h} --action1 ";""feh --bg-scale %F && xdotool key Escape" "$@" -- "${arr[@]:c}" "${arr[@]:0:c}"
 
+##-- EOF
