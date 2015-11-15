@@ -44,16 +44,16 @@ set $tag9 "9:"
 #set $tag8 "8:    "
 #set $tag9 "9:    "
 
-##-- workspace names (blue dots)
-#set $tag1  "1:    "
-#set $tag2  "2:    "
-#set $tag3  "3:    "
-#set $tag4  "4:    "
-#set $tag5  "5:    "
-#set $tag6  "6:    "
-#set $tag7  "7:    "
-#set $tag8  "8:    "
-#set $tag9  "9:    "
+##-- workspace names (legit names)
+#set $tag1  "1:  "
+#set $tag2  "2:  "
+#set $tag3  "3:  "
+#set $tag4  "4:  "
+#set $tag5  "5:  "
+#set $tag6  "6:  "
+#set $tag7  "7:  "
+#set $tag8  "8:  "
+#set $tag9  "9:  "
 
 ##-- displays (up to 3 are set)
 set $screen0 LVDS1
