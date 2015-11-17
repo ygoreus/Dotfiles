@@ -1,0 +1,62 @@
+#!/usr/bin/env zsh
+##----------------------------------------------------------------------------------------
+##--     file: ${XDG_CONFIG_HOME}/dotfiles/i3/blocks/volume                             --
+##--      vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                              --
+##-- requires: xdotool rxvt-unicode alsa pango                                          --
+##----------------------------------------------------------------------------------------
+##-- BOF
+
+##-- draw the blocklet -------------------------------------------------------------------
+##----------------------------------------------------------------------------------------
+##-- variables
+perc=`amixer get Master | sed -n 6p | awk '{print $5}' | sed 's/[^0-9\%]//g'`
+mute=`amixer get Master | sed -n 6p | awk '{print $6}' | sed 's/[^a-z^A-Z]//g'`
+buds=`cat /proc/asound/card0/codec\#0 | awk '/Node 0x1f/,/Node 0x20/' | grep "Pin-ctls: .* OUT" | wc -l`
+h_icon=""
+[[ $snd == 'on' ]] && s_icon="" || s_icon=""
+
+##-- colours
+bg0='#000000'
+if [[ $snd == 'on' ]]; then
+    fg="#19cf08"
+else
+    fg="#d91c07"
+fi
+if [[ $buds == '0' ]]; then
+    fg0="#848484"
+    fg1=$fg
+else
+    fg0=$fg
+    fg1="#848484"
+fi
+fg2="#aaaaaa"
+
+##-- full_text && short_text
+ft="<span foreground='$fg0' background='$bg0'>${s_icon} </span>"
+ft+="<span foreground='$fg1' background='$bg0'> ${h_icon} </span>"
+ft+="<span foreground='$fg2' background='$bg0'>  ${perc}</span>"
+st=$ft
+echo $ft
+echo $st
+
+##-- interactive options -----------------------------------------------------------------
+##----------------------------------------------------------------------------------------
+case $BLOCK_BUTTON in
+    1)
+        xdotool key XF86AudioMute
+    ;;
+    2)
+        urxvtc -title 'alsamixer' -e alsamixer
+    ;;
+    3)
+        xdotool key XF86AudioMute
+    ;;
+    4)
+        xdotool key XF86AudioRaiseVolume
+    ;;
+    5)
+        xdotool key XF86AudioLowerVolume
+    ;;
+esac
+
+##-- EOF

@@ -1,0 +1,37 @@
+#!/usr/bin/env zsh
+##----------------------------------------------------------------------------------------
+##--     file: ${XDG_CONFIG_HOME}/dotfiles/i3/blocks/time                               --
+##--      vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                              --
+##-- requires: pango                                                                    --
+##----------------------------------------------------------------------------------------
+##-- BOF
+
+##-- draw the blocklet -------------------------------------------------------------------
+##----------------------------------------------------------------------------------------
+##-- variables
+time=`date +"%_H:%M"`
+zone=`date +"%Z"`
+icon=""
+
+##-- colours
+bg0="#000000"
+fg0="#26cece"
+fg1="#aaaaaa"
+fg2="#848484"
+
+##-- full_text && short_text
+ft="<span foreground='$fg0' background='$bg0'>${icon} </span>"
+ft+="<span foreground='$fg1' background='$bg0'> ${time}</span>"
+st=$ft
+ft+="<span foreground='$fg2' background='$bg0'> ${zone}</span>"
+echo $ft
+echo $st
+
+##-- interactive options -----------------------------------------------------------------
+##----------------------------------------------------------------------------------------
+case $BLOCK_BUTTON in
+    1|2|3|4|5)
+    ;;
+esac
+
+##-- EOF

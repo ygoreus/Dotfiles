@@ -1,0 +1,45 @@
+#!/usr/bin/env zsh
+##----------------------------------------------------------------------------------------
+##--     file: ${XDG_CONFIG_HOME}/dotfiles/i3/blocks/cputemps                           --
+##--      vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                              --
+##-- requires: pango                                                                    --
+##----------------------------------------------------------------------------------------
+##-- BOF
+
+##-- draw the blocklet -------------------------------------------------------------------
+##----------------------------------------------------------------------------------------
+##-- variables
+[[ -e /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp2_input ]] && core0=$(($(cat /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp2_input)/1000))
+[[ -e /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp4_input ]] && core1=$(($(cat /sys/devices/platform/coretemp.0/hwmon/hwmon0/temp4_input)/1000))
+corea=$(((core0 + core1) / 2.0 ))
+
+##-- colours
+bg0="#000000"
+if [[ $core0 -ge 100 && $core1 -ge 100 ]]; then
+    fg0="#ff0000"
+elif [[ $core0 -ge 80 && $core1 -ge 80 ]]; then
+    fg0="#d91c07"
+elif [[ $core0 -ge 60 && $core1 -ge 60 ]]; then
+    fg0="#e62e00"
+elif [[ $core0 -ge 30 && $core1 -ge 30 ]]; then
+    fg0="#19cf08"
+elif [[ $core0 -lt 30 && $core1 -lt 30 ]]; then
+    fg0="#00e600"
+fi
+fg1="#aaaaaa"
+
+##-- full_text && short_text
+ft="<span foreground='$fg0' background='$bg0'>  </span>"
+ft+="<span foreground='$fg1' background='$bg0'>  ${core0}°C ${core1}°C</span>"
+st=$ft
+echo $ft
+echo $st
+
+##-- interactive options -----------------------------------------------------------------
+##----------------------------------------------------------------------------------------
+case $BLOCK_BUTTON in
+    1|2|3|4|5)
+    ;;
+esac
+
+##-- EOF
