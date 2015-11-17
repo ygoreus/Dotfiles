@@ -10,9 +10,10 @@
 
 * i3
     - config
+    - blocks.config
+    - blocks
+        * blocklets for i3blocks
 
 
-
-
-dotfiles are mostly if not entirely distro agnostic.
+dotfiles are mostly, if not entirely distro agnostic.
 

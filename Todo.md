@@ -4,7 +4,7 @@
 
 - zsh config
 - vim configs
-- i3 blocks
+- ~~i3 blocks~~
 - ranger configs
 - mutt configs
 - Xdefaults configs
@@ -17,6 +17,6 @@
 
 #####Refine Items
 - scripts within bin
-- dzen popups
+- ~~dzen popups~~
 
 
