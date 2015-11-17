@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
-##-- file   > ${XDG_CONFIG_HOME}/dotfiles/bin/brightness_adjust                         --
-##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##--     file: ${XDG_CONFIG_HOME}/dotfiles/bin/brightness_adjust                        --
+##--      vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                              --
 ##-- requires: xorg-xbacklight dzen2 i3blocks                                           --
 ##----------------------------------------------------------------------------------------
 ##-- BOF

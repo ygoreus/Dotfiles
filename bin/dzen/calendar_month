@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 ##----------------------------------------------------------------------------------------
-##--   file > ${XDG_CONFIG_HOME}/dotfiles/bin/dzen/calendar_month                       --
-##-- vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                                   --
+##--     file: ${XDG_CONFIG_HOME}/dotfiles/bin/dzen/calendar_month                      --
+##--      vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                              --
 ##-- requires: cal dzen2                                                                --
 ##----------------------------------------------------------------------------------------
 ##-- BOF
