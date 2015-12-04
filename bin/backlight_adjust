@@ -1,58 +1,125 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 ##----------------------------------------------------------------------------------------
 ##--     file: ${XDG_CONFIG_HOME}/dotfiles/bin/brightness_adjust                        --
 ##--      vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                              --
 ##-- requires: xorg-xbacklight dzen2 i3blocks                                           --
 ##----------------------------------------------------------------------------------------
-##-- BOF
 
-##-- modify screen backlighting ----------------------------------------------------------
+##-- initialize all the things -----------------------------------------------------------
 ##----------------------------------------------------------------------------------------
-##-- variables
-level=${2:-5}
-if [[ $level -ge 100 ]]; then
-    level="5"
-fi
-case $1 in
-    "up")
-        brightness=$(/usr/bin/xbacklight -inc ${level})
-    ;;
-    "down")
-        brightness=$(/usr/bin/xbacklight -dec ${level})
-    ;;
-    "standard")
-        brightness=$(/usr/bin/xbacklight -set 25%)
-    ;;
-    "off")
-        brightness=$(/usr/bin/xbacklight -set 0%)
-    ;;
-    *)
-        echo -e "\nUsage: backlight_adjust <augment> <increment>\n  augment   -- any of (up|down|standard|off) \n  increment -- positive percentage change\n\nAugment options: \n  up        -- increase screen backlighting by <increment>\n  down      -- decrease screen backlighting by <increment>\n  standard  -- set screen backlighting to 25%\n  off       -- set screen backlighting to 0%\n"
-        exit 1
-    ;;
-esac
+##-- usage message
+usage(){
+cat <<EOF
 
-##-- change screen backlighting
-$brightness
-pkill -SIGRTMIN+11 i3blocks
+    Usage: $0 -a <action> -l <level> -p -h
+        -a          -- perform action
+                       -- up|u         : raise backlight by <level>
+                       -- down|d       : lower backlight by <level>
+                       -- toggle|t     : if backlight is 0 set to 25, and vice versa
+        -l          -- backlight incriment to adjust
+                       -- <integer>    : percent incriment as an integer. eg: 5
+        -p          -- show popup
+                       -- takes no aruments, simply shows dzen popup if switch is on.
+        -h          -- print help screen and exit
 
-##-- make the popup ----------------------------------------------------------------------
+EOF
+}
+
+##-- error message
+error(){
+    echo -e "ERROR: $1"
+    #dunst message
+    usage; exit 1
+}
+
+##-- adjust screen backlighting
+setbacklight(){
+    ${backlight}
+    pkill -SIGRTMIN+11 i3blocks
+    [[ $POPUP_SWITCH == '1' ]]; popup; exit 1 || exit 1
+}
+
+##-- draw popup if called
+popup(){
+    bar_bg="#232323"
+    bar_fg="#fcd116"
+    dzen_args=( -tw 200 -h 26 -x 1156 -y 20 -bg '#101010' )
+    gdbar_args=( -w 180 -h 12 -fg ${bar_fg} -bg ${bar_bg} )
+    if [[ ! -e "$pipe" ]]; then
+        mkfifo "$pipe"
+        (dzen2 "${dzen_args[@]}" < "${pipe}"; rm -f "${pipe}" ) &
+    fi
+    (echo ${b_lvl/.*/} | gdbar "${gdbar_args[@]}" -max 100; sleep 1) >> "${pipe}"
+}
+
+##-- initialize variables
+b_lvl0=`/usr/bin/xbacklight -get | awk '{print int($1+0.5)}'`
+POPUP_SWITCH=0
+pipe="/tmp/backlight"
+
+##-- modify system backlighting ----------------------------------------------------------
 ##----------------------------------------------------------------------------------------
-##-- new variables
-backlight=`/usr/bin/xbacklight -get | awk '{print int($1+0.5)}'`
-pipe="/tmp/brightness"
+##-- interpret opts
+while getopts "a:l:ph" opt; do
+    case "$opt" in
+        "a")
+            case ${OPTARG} in
+                "up"|"u")
+                    upb=1
+                    backlight="/usr/bin/xbacklight -inc "
+                ;;
+                "down"|"d")
+                    upb=-1
+                    backlight="/usr/bin/xbacklight -dec "
+                ;;
+                "toggle"|"t")
+                    upb=0
+                    backlight="/usr/bin/xbacklight -set "
+                ;;
+                *)
+                    error "'${OPTARG}' is not a valid action..."; usage; exit 1
+                ;;
+            esac
+        ;;
+        "l")
+            re='^[0-9]+$'
+            if ! [[ ${OPTARG} =~ $re ]]; then
+                error "Level is not an integer..."; usage; exit 1
+            fi
+            level=${OPTARG}
+            case $upb in
+                1)
+                    b_lvl=$((b_lvl0+level))
+                    backlight+="${level}%"
+                ;;
+                -1)
+                    b_lvl=$((b_lvl0-level))
+                    backlight+="${level}%"
+                ;;
+                0)
+                    if [[ ${b_lvl} != 0 ]]; then
+                        inc="0%"
+                    else
+                        inc="25%"
+                    fi
+                    b_lvl=${inc}
+                    backlight+="${inc}"
+                ;;
+            esac
+        ;;
+        "p")
+            POPUP_SWITCH=1
+        ;;
+        "h")
+            usage; exit 1
+        ;;
+        *)
+            error "'${opt}' is not a valid option..."; usage; exit 1
+        ;;
+    esac
+done 2>/dev/null
+shift $((OPTIND-1))
 
-##-- colours
-bar_fg="#dddd00"
-bar_bg="#232323"
+##-- change system backlight
+setbacklight
 
-##-- draw the popup
-dzen_args=( -tw 200 -h 26 -x 1156 -y 20 -bg '#101010' )
-gdbar_args=( -w 180 -h 12 -fg $bar_fg -bg $bar_bg )
-if [[ ! -e "$pipe" ]]; then
-    mkfifo "$pipe"
-    (dzen2 "${dzen_args[@]}" < "$pipe"; rm -f "$pipe" ) &
-fi
-(echo ${backlight/.*/} 100 | gdbar "${gdbar_args[@]}"; sleep 1) >> "$pipe"
-
-##-- EOF

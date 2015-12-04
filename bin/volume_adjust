@@ -1,62 +1,129 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 ##----------------------------------------------------------------------------------------
 ##--     file: ${XDG_CONFIG_HOME}/dotfiles/bin/volume_adjust                            --
-##--      vim: set rnu nu ai et ts=4 sw=4 :                                             --
+##--      vim: set rnu nu ai et ts=4 sw=4 ft=zsh syn=zsh :                              --
 ##-- requires: alsa-utils dzen2 i3blocks                                                --
 ##----------------------------------------------------------------------------------------
-##-- BOF
+
+##-- initialize all the things -----------------------------------------------------------
+##-- usage message
+usage(){
+cat <<EOF
+
+    Usage: $0 -a <action> -l <level> -p -h
+        -a          -- perform action
+                       -- up|u       : raise volume by \$level
+                       -- down|d     : lower volume by \$level
+                       -- toggle|t   : toggle system volume
+                       -- micmute|mi : toggle mic volume (experimental)
+                       -- mute|m     : mute the system volume
+        -l          -- volume incriment to adjust
+                       -- <integer>  : percent incriment as an integer. eg: 5
+        -p          -- show popup
+                       -- takes no aruments, simply shows dzen popup if switch is on.
+        -h          -- print help screen and exit
+
+EOF
+}
+
+##-- error message
+error(){
+    echo -e "ERROR: $1"
+    #dunst message
+    usage; exit 1
+}
+
+##-- adjust system volume
+setvolume(){
+    ${volume}
+    pkill -SIGRTMIN+10 i3blocks
+    [[ ${POPUP_SWITCH} == '1' ]] && popup || exit 2
+}
+
+##-- draw popup if called
+popup(){
+    bar_bg="#232323"
+    [[ $muted == 'off' ]] && bar_fg="#dd0000" || bar_fg="#19cf08"
+    dzen_args=( -tw 200 -h 26 -x 1156 -y 20 -bg '#101010' )
+    gdbar_args=( -w 180 -h 12 -fg ${bar_fg} -bg ${bar_bg})
+    if [[ ! -e "${pipe}" ]]; then
+        mkfifo "${pipe}"
+        (dzen2 "${dzen_args[@]}" < "${pipe}"; rm -f "${pipe}" ) &
+    fi
+    (echo ${v_lvl/.*/} | gdbar "${gdbar_args[@]}" -max 100; sleep 1) >> "$pipe"
+}
+
+##-- initialize variables
+v_lvl0=`amixer get Master | sed -n 6p | awk '{print $5}' | sed 's/[^0-9]//g'`
+v_lvl=${v_lvl0}
+muted0=`amixer get Master | awk 'FNR == 6 {print $6}' | sed 's|[^a-z]||g'`
+pipe='/tmp/volpipe'
+level=5
+volume="amixer -D pulse set Master toggle"
+POPUP_SWITCH=0
 
 ##-- modify the system volume ------------------------------------------------------------
 ##----------------------------------------------------------------------------------------
-##-- variables
-level=${2:-5}
-if [[ $level -ge 100 ]]; then
-    level="5"
-fi
-case $1 in
-    "up")
-        volume=$(amixer -D pulse set Master unmute ${level}%+)
-    ;;
-    "down")
-        volume=$(amixer -D pulse set Master unmute ${level}%-)
-    ;;
-    "spkrmute")
-        volume=$(amixer -D pulse set Master toggle)
-    ;;
-    "micmute")
-        volume=$(amixer -D pulse set Master toggle)
-    ;;
-    "mute")
-        volume=$(amixer -D pulse set Master mute)
-    ;;
-    *)
-        echo -e "\nUsage: volume_adjust <augment> <increment>\n  augment   -- any of (up|down|spkrmute|micmute|mute)\n  increment -- positive percentage change (default is 5)\n\nAugment options:\n  up        -- unmutes and raises system volume by <increment>\n  down      -- unmutes and lowers system volume by <increment>\n  spkrmute  -- toggles mute / unmute the system volume\n  micmute   -- toogles mute / unmute the microphone (experimental) \n  mute      -- mutes the system volume\n"
-        exit 1
-    ;;
-esac
+##-- interpret opts
+while getopts "a:l:ph" opt; do
+    case "$opt" in
+        "a")
+            case $OPTARG in
+                "up"|"u")
+                    volume="amixer -D pulse set Master unmute "
+                    upvol=1
+                    muted='on'
+                ;;
+                "down"|"d")
+                    volume="amixer -D pulse set Master unmute "
+                    upvol=-1
+                    muted='on'
+                ;;
+                "toggle"|"t"|"micmute"|"mi")
+                    volume="amixer -D pulse set Master toggle"
+                    upvol=0
+                    [[ $muted0 == 'on' ]] && muted='off' || muted='on'
+                ;;
+                "mute"|"m")
+                    volume="amixer -D pulse set Master mute"
+                    upvol=0
+                    muted='off'
+                ;;
+                *)
+                    error "'${OPTARG}' is not a valid action..."; usage; exit 1
+                ;;
+            esac
+        ;;
+        "l")
+            re='^[0-9]+$'
+            if ! [[ ${OPTARG} =~ $re ]]; then
+                error 'Level is not an integer...'; usage; exit 1
+            fi
+            level=${OPTARG}
+            case $upvol in
+                1)
+                    volume+="${level}%+"
+                    v_lvl=$((v_lvl0+level))
+                ;;
+                -1)
+                    volume+="${level}%-"
+                    v_lvl=$((v_lvl0-level))
+                ;;
+            esac
+        ;;
+        "p")
+            POPUP_SWITCH=1
+        ;;
+        "h")
+            usage; exit 1
+        ;;
+        *)
+            error "'${opt}' is not a valid option..."; usage; exit 1
+        ;;
+    esac
+done 2>/dev/null
+shift $((OPTIND-1))
 
 ##-- change system volume
-$volume
-pkill -SIGRTMIN+10 i3blocks
+setvolume
 
-##-- create and display a popup volume bar -----------------------------------------------
-##----------------------------------------------------------------------------------------
-##-- new variables
-v_lvl=`amixer get Master | sed -n 6p | awk '{print $5}' | sed 's/[^0-9]//g'`
-muted=`amixer get Master | awk 'FNR == 6 {print $6}' | sed 's|[^a-z]||g'`
-pipe='/tmp/volpipe'
-
-##-- colours
-bar_bg="#232323"
-[[ $muted == 'off' ]] && bar_fg="#dd0000" || bar_fg="#19cf08"
-
-##-- draw the popup
-dzen_args=( -tw 200 -h 26 -x 1156 -y 20 -bg '#101010' )
-gdbar_args=( -w 180 -h 12 -fg $bar_fg -bg $bar_bg)
-if [[ ! -e "$pipe" ]]; then
-    mkfifo "$pipe"
-    (dzen2 "${dzen_args[@]}" < "$pipe"; rm -f "$pipe" ) &
-fi
-(echo ${v_lvl/.*/} | gdbar "${gdbar_args[@]}" -max 100; sleep 1) >> "$pipe"
-
-##-- EOF
