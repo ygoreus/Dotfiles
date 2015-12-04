@@ -58,8 +58,6 @@ v_lvl0=`amixer get Master | sed -n 6p | awk '{print $5}' | sed 's/[^0-9]//g'`
 v_lvl=${v_lvl0}
 muted0=`amixer get Master | awk 'FNR == 6 {print $6}' | sed 's|[^a-z]||g'`
 pipe='/tmp/volpipe'
-level=5
-volume="amixer -D pulse set Master toggle"
 POPUP_SWITCH=0
 
 ##-- modify the system volume ------------------------------------------------------------
